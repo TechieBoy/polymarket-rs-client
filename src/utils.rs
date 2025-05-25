@@ -32,10 +32,9 @@ where
     let message = match body {
         None => format!("{timestamp}{method}{req_path}"),
         Some(s) => {
-            // We format like str(dict) in python
             let s = JsonFormat::new()
-                .comma(", ")?
-                .colon(": ")?
+                // .comma(", ")? // We format like str(dict) in python
+                // .colon(": ")? // We format like str(dict) in python
                 .format_to_string(&s)?;
             format!("{timestamp}{method}{req_path}{s}")
         }

@@ -37,6 +37,16 @@ pub struct OrderBuilder {
     funder: Address,
 }
 
+impl OrderBuilder {
+    pub fn set_sig_type(&mut self, sig_type: SigType) {
+        self.sig_type = sig_type;
+    }
+
+    pub fn set_funder(&mut self, funder: Address) {
+        self.funder = funder;
+    }
+}
+
 pub struct RoundConfig {
     price: u32,
     size: u32,
