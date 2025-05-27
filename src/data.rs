@@ -145,6 +145,97 @@ impl OpenOrderParams {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum PriceHistoryInterval {
+    HOUR,
+    DAY,
+    WEEK,
+    MONTH,
+    SixHours,
+    MAX,
+}
+
+impl std::fmt::Display for PriceHistoryInterval {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            PriceHistoryInterval::HOUR => "1h",
+            PriceHistoryInterval::DAY => "1d",
+            PriceHistoryInterval::WEEK => "1w",
+            PriceHistoryInterval::MONTH => "1m",
+            PriceHistoryInterval::SixHours => "6h",
+            PriceHistoryInterval::MAX => "max",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PriceHistoryQuery {
+    market: String,
+    start_ts: Option<u64>,
+    end_ts: Option<u64>,
+    interval: Option<PriceHistoryInterval>,
+    fidelity: Option<u64>,
+}
+
+impl PriceHistoryQuery {
+    pub fn new_with_ts(market: String, start_ts: u64, end_ts: u64, fidelity: u64) -> Self {
+        PriceHistoryQuery {
+            market,
+            start_ts: Some(start_ts),
+            end_ts: Some(end_ts),
+            interval: None,
+            fidelity: Some(fidelity),
+        }
+    }
+    pub fn new_with_interval(
+        market: String,
+        interval: PriceHistoryInterval,
+        fidelity: u64,
+    ) -> Self {
+        PriceHistoryQuery {
+            market,
+            start_ts: None,
+            end_ts: None,
+            interval: Some(interval),
+            fidelity: Some(fidelity),
+        }
+    }
+    pub fn to_query_params(&self) -> Vec<(&str, String)> {
+        let mut params = Vec::with_capacity(4);
+
+        params.push(("market", self.market.to_string()));
+
+        if let Some(x) = &self.start_ts {
+            params.push(("start_ts", x.to_string()));
+        }
+        if let Some(x) = &self.end_ts {
+            params.push(("end_ts", x.to_string()));
+        }
+
+        if let Some(x) = &self.interval {
+            params.push(("interval", x.to_string()));
+        }
+        if let Some(x) = &self.fidelity {
+            params.push(("fidelity", x.to_string()));
+        }
+        params
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TimeseriesPoint {
+    #[serde(rename = "t")]
+    pub timestamp: u64,
+    #[serde(rename = "p")]
+    pub price: Decimal,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PriceHistoryResponse {
+    pub history: Vec<TimeseriesPoint>,
+}
+
 fn deserialize_number_from_string<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,

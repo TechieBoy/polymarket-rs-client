@@ -913,4 +913,18 @@ impl ClobClient {
             .json::<Value>()
             .await?)
     }
+
+    pub async fn get_prices_history(
+        &self,
+        query: &PriceHistoryQuery,
+    ) -> ClientResult<PriceHistoryResponse> {
+        Ok(self
+            .http_client
+            .get(format!("{}/prices-history", &self.host))
+            .query(&query.to_query_params())
+            .send()
+            .await?
+            .json::<PriceHistoryResponse>()
+            .await?)
+    }
 }
