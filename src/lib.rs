@@ -25,6 +25,7 @@ mod utils;
 
 pub use data::*;
 pub use eth_utils::EthSigner;
+pub use orders::SigType;
 use headers::{create_l1_headers, create_l2_headers};
 
 #[derive(Default)]
@@ -64,6 +65,28 @@ impl ClobClient {
         }
     }
 
+    pub fn with_l1_headers_proxy(
+        host: &str,
+        key: &str,
+        chain_id: u64,
+        funder: Option<&str>,
+        signature_type: Option<SigType>,
+    ) -> Self {
+        let signer = Box::new(
+            key.parse::<PrivateKeySigner>()
+                .expect("Invalid private key"),
+        );
+        let funder_address = funder.map(|f| f.parse().expect("Invalid funder address"));
+        Self {
+            host: host.to_owned(),
+            http_client: Client::new(),
+            signer: Some(signer.clone()),
+            chain_id: Some(chain_id),
+            api_creds: None,
+            order_builder: Some(OrderBuilder::new(signer, signature_type, funder_address)),
+        }
+    }
+
     pub fn with_l2_headers(host: &str, key: &str, chain_id: u64, api_creds: ApiCreds) -> Self {
         let signer = Box::new(
             key.parse::<PrivateKeySigner>()
@@ -76,6 +99,29 @@ impl ClobClient {
             chain_id: Some(chain_id),
             api_creds: Some(api_creds),
             order_builder: Some(OrderBuilder::new(signer, None, None)),
+        }
+    }
+
+    pub fn with_l2_headers_proxy(
+        host: &str,
+        key: &str,
+        chain_id: u64,
+        api_creds: ApiCreds,
+        funder: Option<&str>,
+        signature_type: Option<SigType>,
+    ) -> Self {
+        let signer = Box::new(
+            key.parse::<PrivateKeySigner>()
+                .expect("Invalid private key"),
+        );
+        let funder_address = funder.map(|f| f.parse().expect("Invalid funder address"));
+        Self {
+            host: host.to_owned(),
+            http_client: Client::new(),
+            signer: Some(signer.clone()),
+            chain_id: Some(chain_id),
+            api_creds: Some(api_creds),
+            order_builder: Some(OrderBuilder::new(signer, signature_type, funder_address)),
         }
     }
     pub fn set_api_creds(&mut self, api_creds: ApiCreds) {

@@ -32,12 +32,14 @@ where
     let message = match body {
         None => format!("{timestamp}{method}{req_path}"),
         Some(s) => {
-            // We format like str(dict) in python
-            let s = JsonFormat::new()
-                .comma(", ")?
-                .colon(": ")?
-                .format_to_string(&s)?;
-            format!("{timestamp}{method}{req_path}{s}")
+            let json_str = serde_json::to_string(s)
+                .context("Failed to serialize body to JSON")?;
+            
+            // Replace single quotes with double quotes to match Python's str(body).replace("'", '"')
+            // Note: This is mainly for compatibility, as proper JSON shouldn't have single quotes
+            let body_str = json_str.replace('\'', "\"");
+            
+           format!("{}{}{}{}", timestamp, method, req_path, body_str)
         }
     };
 

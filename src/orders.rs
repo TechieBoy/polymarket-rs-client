@@ -21,13 +21,14 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::LazyLock;
 
-#[derive(Copy, Clone)]
+/// Signature type for different wallet configurations
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SigType {
-    // ECDSA EIP712 signatures signed by EOAs
+    /// ECDSA EIP712 signatures signed by EOAs (Externally Owned Accounts)
     Eoa = 0,
-    // EIP712 signatures signed by EOAs that own Polymarket Proxy wallets
+    /// EIP712 signatures signed by EOAs that own Polymarket Proxy wallets
     PolyProxy = 1,
-    // EIP712 signatures signed by EOAs that own Polymarket Gnosis safes
+    /// EIP712 signatures signed by EOAs that own Polymarket Gnosis safes
     PolyGnosisSafe = 2,
 }
 
