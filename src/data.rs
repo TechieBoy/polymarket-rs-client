@@ -182,6 +182,17 @@ impl PostOrder {
     }
 }
 
+#[derive(Debug, Serialize)]
+pub struct PostOrderBatch {
+    orders: Vec<PostOrder>,
+}
+
+impl PostOrderBatch {
+    pub fn new(orders: Vec<PostOrder>) -> Self {
+        PostOrderBatch { orders }
+    }
+}
+
 #[derive(Debug)]
 pub struct OrderArgs {
     pub token_id: String,
@@ -288,6 +299,7 @@ pub enum OrderType {
     GTC,
     FOK,
     GTD,
+    FAK,
 }
 
 impl OrderType {
@@ -296,6 +308,7 @@ impl OrderType {
             OrderType::GTC => "GTC",
             OrderType::FOK => "FOK",
             OrderType::GTD => "GTD",
+            OrderType::FAK => "FAK",
         }
     }
 }
