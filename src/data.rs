@@ -218,7 +218,7 @@ pub struct MarketOrderArgs {
     pub amount: Decimal,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct OrderSummary {
     #[serde(with = "rust_decimal::serde::str")]
     pub price: Decimal,
