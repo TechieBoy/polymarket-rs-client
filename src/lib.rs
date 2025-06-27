@@ -487,7 +487,7 @@ impl ClobClient {
         &self,
         order: SignedOrderRequest,
         order_type: OrderType,
-    ) -> ClientResult<Value> {
+    ) -> ClientResult<OrderResponse> {
         let (signer, creds) = self.get_l2_parameters();
         let body = PostOrder::new(order, creds.api_key.clone(), order_type);
 
@@ -498,13 +498,13 @@ impl ClobClient {
 
         let req = self.create_request_with_headers(method, endpoint, headers.into_iter());
 
-        Ok(req.json(&body).send().await?.json::<Value>().await?)
+        Ok(req.json(&body).send().await?.json::<OrderResponse>().await?)
     }
 
     pub async fn post_order_batch(
         &self,
         orders: Vec<(SignedOrderRequest, OrderType)>,
-    ) -> ClientResult<Value> {
+    ) -> ClientResult<BatchOrderResponse> {
         if orders.len() > 5 {
             return Err(anyhow!("Maximum of 5 orders allowed per batch"));
         }
@@ -525,10 +525,10 @@ impl ClobClient {
 
         let req = self.create_request_with_headers(method, endpoint, headers.into_iter());
 
-        Ok(req.json(&body).send().await?.json::<Value>().await?)
+        Ok(req.json(&body).send().await?.json::<BatchOrderResponse>().await?)
     }
 
-    pub async fn create_and_post_order(&self, order_args: &OrderArgs) -> ClientResult<Value> {
+    pub async fn create_and_post_order(&self, order_args: &OrderArgs) -> ClientResult<OrderResponse> {
         let order = self.create_order(order_args, None, None, None).await?;
         self.post_order(order, OrderType::GTC).await
     }
@@ -536,7 +536,7 @@ impl ClobClient {
     pub async fn create_and_post_order_batch(
         &self,
         orders_args: &[(OrderArgs, OrderType)],
-    ) -> ClientResult<Value> {
+    ) -> ClientResult<BatchOrderResponse> {
         if orders_args.len() > 5 {
             return Err(anyhow!("Maximum of 5 orders allowed per batch"));
         }

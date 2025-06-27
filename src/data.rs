@@ -400,6 +400,22 @@ pub struct Token {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OrderResponse {
+    pub success: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_msg: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub order_hashes: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
+}
+
+pub type BatchOrderResponse = Vec<OrderResponse>;
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Rewards {
     pub rates: Option<Value>,
     pub min_size: Decimal,
