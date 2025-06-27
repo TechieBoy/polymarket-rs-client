@@ -182,6 +182,17 @@ impl PostOrder {
     }
 }
 
+#[derive(Debug, Serialize)]
+pub struct PostOrderBatch {
+    orders: Vec<PostOrder>,
+}
+
+impl PostOrderBatch {
+    pub fn new(orders: Vec<PostOrder>) -> Self {
+        PostOrderBatch { orders }
+    }
+}
+
 #[derive(Debug)]
 pub struct OrderArgs {
     pub token_id: String,
@@ -207,7 +218,7 @@ pub struct MarketOrderArgs {
     pub amount: Decimal,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct OrderSummary {
     #[serde(with = "rust_decimal::serde::str")]
     pub price: Decimal,
@@ -288,6 +299,7 @@ pub enum OrderType {
     GTC,
     FOK,
     GTD,
+    FAK,
 }
 
 impl OrderType {
@@ -296,6 +308,7 @@ impl OrderType {
             OrderType::GTC => "GTC",
             OrderType::FOK => "FOK",
             OrderType::GTD => "GTD",
+            OrderType::FAK => "FAK",
         }
     }
 }
@@ -385,6 +398,22 @@ pub struct Token {
     pub token_id: String,
     pub outcome: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OrderResponse {
+    pub success: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_msg: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub order_hashes: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
+}
+
+pub type BatchOrderResponse = Vec<OrderResponse>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Rewards {
